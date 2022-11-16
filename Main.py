@@ -30,26 +30,12 @@ class Ui_MainWindow(object):
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.layoutWidget)
         self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.label_2 = QtWidgets.QLabel(self.layoutWidget)
         font = QtGui.QFont()
         font.setFamily("Calibri Light")
         font.setPointSize(12)
-        self.label_2.setFont(font)
-        self.label_2.setObjectName("label_2")
-        self.verticalLayout_2.addWidget(self.label_2)
-        self.ComboClub = QtWidgets.QComboBox(self.layoutWidget)
-        self.ComboClub.setObjectName("ComboClub")
-        self.verticalLayout_2.addWidget(self.ComboClub)
         self.LeagueTable = QtWidgets.QTableWidget(self.widget)
         self.LeagueTable.setGeometry(QtCore.QRect(10, 80, 621, 671))
         self.LeagueTable.setObjectName("LeagueTable")
-        self.ClubTable = QtWidgets.QTableWidget(self.widget)
-        self.ClubTable.setGeometry(QtCore.QRect(660, 341, 521, 411))
-        self.ClubTable.setObjectName("ClubTable")
-        self.ClubLabel = QtWidgets.QLabel(self.centralwidget)
-        self.ClubLabel.setGeometry(QtCore.QRect(660, 80, 521, 241))
-        self.ClubLabel.setText("")
-        self.ClubLabel.setObjectName("ClubLabel")
         self.widget = QtWidgets.QWidget(self.centralwidget)
         self.widget.setGeometry(QtCore.QRect(10, 10, 131, 51))
         self.widget.setObjectName("widget")
@@ -76,10 +62,6 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
-        def define_clubs():
-            self.ComboClub.clear()
-            self.ComboClub.addItems(connection.clubs)
-
         def create_table():
             for club in range(0,len(connection.row)-1):
                 self.LeagueTable.setRowCount(len(connection.row)-1)
@@ -92,12 +74,10 @@ class Ui_MainWindow(object):
                 self.LeagueTable.setItem(club, 6, QTableWidgetItem(str(connection.goals[club])))
                 self.LeagueTable.setItem(club, 7, QTableWidgetItem(str(connection.points[club])))
 
-
         def connection(url):
             req = ul.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
             client = ul.urlopen(req)
             htmldata = client.read()
-            client.close()
 
             connection.clubs = []
             connection.matches = []
@@ -111,7 +91,6 @@ class Ui_MainWindow(object):
             pagesoup = soup(htmldata, "html.parser")
             table = pagesoup.find('table', {"class":"items"})
             connection.row = table.findAll('tr')
-            club = 0
             for rows in connection.row:
                 column = rows.findAll('td')
                 if len(column)<1:
@@ -135,8 +114,6 @@ class Ui_MainWindow(object):
                         elif columns == 9:
                             connection.points.append(column[columns].text.strip())
             create_table()
-            define_clubs()
-
 
         def set_league():
             self.LeagueTable.setColumnCount(8) 
@@ -146,14 +123,14 @@ class Ui_MainWindow(object):
             self.LeagueTable.setColumnWidth(2,50)
             self.LeagueTable.setColumnWidth(3,50)
             self.LeagueTable.setColumnWidth(4,50)
-            leagues_dict = {
+            set_league.leagues_dict = {
                 "Premier League":["premier-league", "GB1"],
                 "Serie A":["serie-a","IT1"],
                 "Bundesliga":["bundesliga","L1"],
                 "Ligue 1":["ligue-1","FR1"],
                 "LaLiga":["laliga","ES1"]
             }
-            url = "https://www.transfermarkt.pl/"+leagues_dict[self.ComboLeague.currentText()][0]+"/tabelle/wettbewerb/"+leagues_dict[self.ComboLeague.currentText()][1]+"/saison_id/2022"
+            url = "https://www.transfermarkt.pl/"+set_league.leagues_dict[self.ComboLeague.currentText()][0]+"/tabelle/wettbewerb/"+set_league.leagues_dict[self.ComboLeague.currentText()][1]+"/saison_id/2022"
             connection(url)
 
         self.ComboLeague.activated.connect(set_league)
@@ -164,7 +141,6 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Football"))
-        self.label_2.setText(_translate("MainWindow", "Select club"))
         self.label.setText(_translate("MainWindow", "Select league"))
 
 
